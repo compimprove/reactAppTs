@@ -10,13 +10,15 @@ import {
   View,
   Container
 } from 'native-base';
-import TodoDataAsync from '../Data/TodoDataAsync';
+
 import Todo from '../Model/Todo';
 import { StyleSheet } from 'react-native';
 import AddTodoButton from './Button/AddTodoButton';
 import Footer from './Footer';
 import Helper from '../Helper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DateTodos from '../Model/DateTodo';
+import TodoData from '../Data/TodoData';
 
 
 
@@ -32,18 +34,17 @@ class WeekCalendar
     }
   }
 
-  async componentDidMount() {
-    let weekTodos = await Helper.initializeTodos(this.weekDays);
+  componentDidMount() {
+    let weekTodos = TodoData.getTodosByDays(this.weekDays);
+    console.log(weekTodos);
     this.setState({
       weekTodos: weekTodos
     })
   }
 
-
-
   render() {
     let weekTodos = this.state.weekTodos;
-    if (weekTodos) {
+    if (weekTodos && weekTodos.length > 0) {
       return (
         <Container>
           <Content padder>
@@ -116,8 +117,10 @@ function TodoView(props: { todo: Todo }) {
     }
   })
 
-  function toHourMinuteString(date: Date): string {
-    return `${date.getHours()}:${date.getMinutes()}`
+  function toHourMinuteString(date: Date | undefined): string {
+    if (date)
+      return `${date.getHours()}:${date.getMinutes()}`
+    else return 'undefined';
   }
 
   return (
@@ -130,12 +133,15 @@ function TodoView(props: { todo: Todo }) {
           <Text style={{ fontSize: 14 }}>
             {toHourMinuteString(props.todo.timeEnd)}
           </Text>
-        </View>}
+        </View>
+        }
         {props.todo.isAllDayEvent && <View style={style.left}>
           <Text style={{ color: 'green', fontSize: 14 }}>
             All Day
           </Text>
-        </View>}
+        </View>
+        }
+
         <View>
           <Text style={{ fontSize: 14 }}>
             {props.todo.name}

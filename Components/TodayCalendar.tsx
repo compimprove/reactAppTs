@@ -16,6 +16,7 @@ import { ScrollView, FlatList, View } from 'react-native';
 import DateTodos from '../Model/DateTodo';
 import Todo from '../Model/Todo';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import TodoData from '../Data/TodoData';
 
 
 class ToDayCalendar extends React.Component<{}, { weekTodos: Array<DateTodos> | null }>{
@@ -27,10 +28,15 @@ class ToDayCalendar extends React.Component<{}, { weekTodos: Array<DateTodos> | 
     this.state = {
       weekTodos: null
     }
+    this.updateData = this.updateData.bind(this);
   }
 
-  async componentDidMount() {
-    let weekTodos = await Helper.initializeTodos(this.weekDays);
+  componentDidMount() {
+    this.updateData();
+  }
+
+  updateData() {
+    let weekTodos = TodoData.getTodosByDays(this.weekDays);
     this.setState({
       weekTodos: weekTodos
     })
@@ -86,6 +92,7 @@ class DayTab
   extends React.Component<{ key: number, heading: string, todos: Array<Todo> }, {}> {
 
   todosData: Array<Todo | undefined>;
+
   constructor(props: { key: number, heading: string, todos: Array<Todo> }) {
     super(props);
     this.todosData = this.initializeData();
@@ -189,8 +196,8 @@ function HourView(props: { hour: number, todo: Todo | undefined }) {
       </View>
     )
   } else {
-    let isStartHourOfTodo = (hour == todo.timeStart.getHours());
-    let isEndHourOfTodo = (hour == todo.timeEnd.getHours());
+    let isStartHourOfTodo = (hour == todo.timeStart?.getHours());
+    let isEndHourOfTodo = (hour == todo.timeEnd?.getHours());
     return (
       <View
         style={{
@@ -206,7 +213,7 @@ function HourView(props: { hour: number, todo: Todo | undefined }) {
             <View
               style={{
                 backgroundColor: tokenColorEmpty,
-                height: todo.timeStart.getMinutes(),
+                height: todo.timeStart?.getMinutes(),
               }} >
             </View>
             <View
@@ -224,7 +231,7 @@ function HourView(props: { hour: number, todo: Todo | undefined }) {
             <View
               style={{
                 backgroundColor: tokenColorEmpty,
-                height: todo.timeStart.getMinutes()
+                height: todo.timeStart?.getMinutes()
               }}>
             </View>
             <View
@@ -256,7 +263,7 @@ function HourView(props: { hour: number, todo: Todo | undefined }) {
             <View
               style={{
                 backgroundColor: tokenColorHasTodo,
-                height: todo.timeEnd.getMinutes()
+                height: todo.timeEnd?.getMinutes()
               }}>
             </View>
             <View

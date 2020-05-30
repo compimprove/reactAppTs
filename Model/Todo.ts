@@ -3,8 +3,8 @@ export default class Todo {
     name: string = '';
     location: string = '';
     reminder: boolean = false;
-    timeStart: Date;
-    timeEnd: Date;
+    timeStart: Date | undefined;
+    timeEnd: Date | undefined;
     isAllDayEvent: boolean = false;
     dateStart: Date;
     dateEnd: Date | undefined;
@@ -22,11 +22,37 @@ export default class Todo {
         this.name = data.name;
         this.location = data.location;
         this.reminder = data.reminder;
-        this.dateStart = data.dateStart;
-        this.dateEnd = data.dateEnd;
-        this.timeStart = data.timeStart;
-        this.timeEnd = data.timeEnd;
         this.isAllDayEvent = data.isAllDayEvent as boolean;
+        this.dateStart = new Date(
+            data.dateStart.getFullYear(),
+            data.dateStart.getMonth(),
+            data.dateStart.getDate(),
+        )
+        if (data.isAllDayEvent && data.dateEnd)
+            this.dateEnd = new Date(
+                data.dateEnd.getFullYear(),
+                data.dateEnd.getMonth(),
+                data.dateEnd.getDate(),
+            )
+        else if (!data.isAllDayEvent) {
+            this.timeStart = new Date(
+                data.dateStart.getFullYear(),
+                data.dateStart.getMonth(),
+                data.dateStart.getDate(),
+                data.timeStart.getHours(),
+                data.timeStart.getMinutes()
+            )
+            this.timeEnd = new Date(
+                data.dateStart.getFullYear(),
+                data.dateStart.getMonth(),
+                data.dateStart.getDate(),
+                data.timeEnd.getHours(),
+                data.timeEnd.getMinutes()
+            )
+        } else {
+            console.log(data);
+            throw `Todo constructor has wrong param`
+        }
     }
 
     public static createTodoFromJson(data: {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Todo from '../Model/Todo';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import TodoDatabaseAsync from '../Data/TodoDataAsync';
+import TodoData from '../Data/TodoData';
 import {
   Text,
   Content,
@@ -14,6 +14,7 @@ import {
   View,
 } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 
 function createDateTimePickerFunction(
   setShow: Function,
@@ -66,7 +67,8 @@ function saveTodo(arg: {
 }
 ) {
   let todo = new Todo(arg);
-  TodoDatabaseAsync.saveTodoAsync(todo);
+  TodoData.save(todo);
+
 }
 
 export default function AddTodo() {
@@ -90,8 +92,10 @@ export default function AddTodo() {
   const toggleSwitchAllDayEvent = () => setAllDayEvent(previousState => !previousState);
   const [reminder, setReminder] = useState(false);
   const toggleSwitchReminder = () => setReminder(previousState => !previousState);
+  const navigation = useNavigation();
 
-  const saveTodoLocalFunc = () =>
+
+  const saveTodoLocalFunc = () => {
     saveTodo({
       dateStart,
       timeStart,
@@ -102,6 +106,8 @@ export default function AddTodo() {
       reminder,
       isAllDayEvent
     });
+    navigation.navigate('WeekCalendar');
+  }
 
   return (
     <Content style={{ backgroundColor: 'white' }}>

@@ -14,6 +14,7 @@ import { FlatList, SafeAreaView } from 'react-native';
 import DateTodos from '../Model/DateTodo';
 import Helper from '../Helper';
 import Todo from '../Model/Todo';
+import TodoData from '../Data/TodoData';
 
 const DateTimeFormat = new Intl.DateTimeFormat('en-US', { month: 'short' });
 
@@ -27,16 +28,21 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
     this.state = {
       dateTodos: null,
     }
+    this.updateData = this.updateData.bind(this);
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     let daysInMonth = this.monthDays.length;
     let remainNumberOfCellRender = (7 - daysInMonth % 7);
     let lastMonthDay = this.monthDays[daysInMonth - 1];
     for (let i = 1; i <= remainNumberOfCellRender; i++) {
       this.monthDays.push(new Date(lastMonthDay.valueOf() + 86400 * 1000 * i));
     };
-    let todos = await Helper.initializeTodos(this.monthDays);
+    this.updateData();
+  }
+
+  updateData() {
+    let todos = TodoData.getTodosByDays(this.monthDays);
     this.setState({ dateTodos: todos });
   }
 

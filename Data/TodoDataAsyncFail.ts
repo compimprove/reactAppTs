@@ -44,7 +44,7 @@ export default class TodoDatabaseAsync {
         await AsyncStorage.multiSet([
             multiSet1, multiSet2, multiSet3
         ]);
-        //await Helper.updateWeek();
+        Helper.updateAll();
     }
 
     static async getTodoAsync(id: number): Promise<Todo> {
@@ -79,6 +79,7 @@ export default class TodoDatabaseAsync {
                 return (date.valueOf() <= todo.dateStart.valueOf()
                     && todo.dateStart.valueOf() <= (date.valueOf() + 86400 * 1000))
             }
+            return false;
         });
         if (!result) {
             return new Array<Todo>();
