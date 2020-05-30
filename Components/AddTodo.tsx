@@ -71,7 +71,7 @@ function saveTodo(arg: {
 
 }
 
-export default function AddTodo() {
+export default function AddTodo(props: any) {
   const currentTime = new Date();
   const [dateStart, setDateStart] = useState(new Date(
     currentTime.getFullYear(),
@@ -106,6 +106,7 @@ export default function AddTodo() {
       reminder,
       isAllDayEvent
     });
+    props.updateState();
     navigation.navigate('WeekCalendar');
   }
 

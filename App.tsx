@@ -21,52 +21,53 @@ const DateTimeFormat = new Intl.DateTimeFormat('en-US', { month: 'long' });
 
 export default class App
   extends React.Component<{}, {
-    todoData: Map<number, Todo> | undefined,
-    weekTodos: Array<DateTodos> | undefined,
+    load: boolean
   }> {
   weekDays: Array<Date>;
 
   constructor(props: any) {
     super(props);
     this.state = {
-      todoData: undefined,
-      weekTodos: undefined,
+      load: false,
     }
     this.weekDays = Helper.initializeWeekDays(new Date());
-    this.updateTodo = this.updateTodo.bind(this)
+    this.updateState = this.updateState.bind(this)
+  }
+
+  updateState() {
+    this.setState({
+      load: true,
+    })
   }
 
   async componentDidMount() {
     await TodoData.up();
-    let weekTodos = TodoData.getTodosByDays(this.weekDays)
     this.setState({
-      weekTodos
+      load: true
     })
   }
 
-  updateTodo() {
-    this.setState({
-      todoData: TodoData.todos
-    })
-  }
+
 
   async componentWillUnmount() {
     await TodoData.destroy();
   }
 
   render() {
-    if (this.state.weekTodos)
+    if (this.state.load)
       return (
         <NavigationContainer>
           <Stack.Navigator initialRouteName="WeekCalendar">
             <Stack.Screen
               name="WeekCalendar"
-              component={WeekCalendar}
-              initialParams={{ weekTodos: this.state.weekTodos }}
               options={{
                 header: ({ navigation }) =>
                   <AppHeader navigation={navigation} />,
-              }} />
+              }}>
+              {props => <WeekCalendar
+                {...props}
+              />}
+            </Stack.Screen>
             <Stack.Screen
               name="ToDayCalendar"
               component={ToDayCalendar}
@@ -82,9 +83,9 @@ export default class App
                   <AppHeader navigation={navigation} />
               }} />
             <Stack.Screen
-              name="AddTodo"
-              component={AddTodo}
-            />
+              name="AddTodo">
+              {props => <AddTodo {...props} updateState={this.updateState} />}
+            </Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>
       );

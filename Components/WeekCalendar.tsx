@@ -23,27 +23,26 @@ import TodoData from '../Data/TodoData';
 
 
 class WeekCalendar
-  extends React.Component<{}, { weekTodos: Array<DateTodos> | null }>{
+  extends React.Component {
   weekDays: Array<Date>
 
   constructor(props: any) {
     super(props);
     this.weekDays = Helper.initializeWeekDays(new Date());
-    this.state = {
-      weekTodos: null
-    }
   }
 
-  componentDidMount() {
-    let weekTodos = TodoData.getTodosByDays(this.weekDays);
-    console.log(weekTodos);
-    this.setState({
-      weekTodos: weekTodos
-    })
-  }
+  // componentDidMount() {
+  //   let weekTodos = TodoData.getTodosByDays(this.weekDays);
+  //   console.log(weekTodos);
+  //   this.setState({
+  //     weekTodos: weekTodos
+  //   })
+  // }
 
   render() {
-    let weekTodos = this.state.weekTodos;
+    let weekTodos = TodoData.getTodosByDays(this.weekDays);
+    console.log('WeekCalendar is being rendered');
+    console.log(weekTodos);
     if (weekTodos && weekTodos.length > 0) {
       return (
         <Container>
