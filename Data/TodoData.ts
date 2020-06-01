@@ -30,12 +30,10 @@ export default class TodoData {
 
         let todoLastKey = await AsyncStorage.getItem('todoLastKey')
         TodoData.todoLastKey = (todoLastKey == null) ? 0 : Number.parseInt(todoLastKey);
-        console.log(TodoData.todoLastKey);
     }
 
     static save(todo: Todo) {
-        TodoData.todoLastKey++;
-        todo.id = TodoData.todoLastKey;
+        todo.id = ++TodoData.todoLastKey;
         TodoData.todos.set(todo.id, todo);
         console.log(this.todos);
         this.saveAsync();
@@ -70,8 +68,18 @@ export default class TodoData {
         return weekTodos;
     }
 
+    static update(id: number, todo: Todo) {
+        console.log(id);
+        console.log(TodoData.todos);
+        todo.id = id;
+        TodoData.todos.set(id, todo);
+        console.log(TodoData.todos);
+        this.saveAsync();
+    }
+
     static delete(todo: Todo) {
         TodoData.todos.delete(todo.id);
+        console.log(TodoData.todos);
         this.saveAsync();
     }
 

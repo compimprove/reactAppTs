@@ -8,14 +8,13 @@ import { Header, Left, Body, Right, Button, Text, Title } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MonthCalendar from './Components/MonthCalendar';
 import ToDayCalendar from './Components/TodayCalendar';
+import TodoDetail from './Components/TodoDetail';
 import AsyncStorage from '@react-native-community/async-storage';
 import Helper from './Helper';
 import Todo from 'Model/Todo';
 import TodoData from './Data/TodoData';
 import DateTodos from './Model/DateTodo';
 const Stack = createStackNavigator();
-
-const Tab = createBottomTabNavigator();
 
 const DateTimeFormat = new Intl.DateTimeFormat('en-US', { month: 'long' });
 
@@ -41,6 +40,7 @@ export default class App
   }
 
   async componentDidMount() {
+    //AsyncStorage.clear();
     await TodoData.up();
     this.setState({
       load: true
@@ -85,6 +85,11 @@ export default class App
             <Stack.Screen
               name="AddTodo">
               {props => <AddTodo {...props} updateState={this.updateState} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="TodoDetail"
+            >
+              {props => <TodoDetail {...props} updateState={this.updateState} />}
             </Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>

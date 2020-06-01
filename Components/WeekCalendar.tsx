@@ -12,13 +12,14 @@ import {
 } from 'native-base';
 
 import Todo from '../Model/Todo';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import AddTodoButton from './Button/AddTodoButton';
 import Footer from './Footer';
 import Helper from '../Helper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DateTodos from '../Model/DateTodo';
 import TodoData from '../Data/TodoData';
+import { useNavigation } from '@react-navigation/native';
 
 
 
@@ -42,7 +43,6 @@ class WeekCalendar
   render() {
     let weekTodos = TodoData.getTodosByDays(this.weekDays);
     console.log('WeekCalendar is being rendered');
-    console.log(weekTodos);
     if (weekTodos && weekTodos.length > 0) {
       return (
         <Container>
@@ -115,7 +115,7 @@ function TodoView(props: { todo: Todo }) {
       color: "gray"
     }
   })
-
+  const navigation = useNavigation();
   function toHourMinuteString(date: Date | undefined): string {
     if (date)
       return `${date.getHours()}:${date.getMinutes()}`
@@ -123,7 +123,11 @@ function TodoView(props: { todo: Todo }) {
   }
 
   return (
-    <CardItem bordered button>
+    <CardItem
+      bordered
+      button
+      onPress={() => navigation.navigate('TodoDetail', { todo: props.todo })}
+    >
       <Body style={style.container}>
         {!props.todo.isAllDayEvent && <View style={style.left}>
           <Text style={{ fontSize: 14 }}>
