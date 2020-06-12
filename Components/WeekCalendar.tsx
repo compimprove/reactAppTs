@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   Content,
@@ -12,7 +12,7 @@ import {
 } from 'native-base';
 
 import Todo from '../Model/Todo';
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet, Alert, ShadowPropTypesIOS } from 'react-native';
 import AddTodoButton from './Button/AddTodoButton';
 import Footer from './Footer';
 import Helper from '../Helper';
@@ -20,6 +20,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DateTodos from '../Model/DateTodo';
 import TodoData from '../Data/TodoData';
 import { useNavigation } from '@react-navigation/native';
+import { ImportantLevelColor, ImportantLevel } from '../Model/Enum';
+import * as theme from '../native-base-theme/variables/commonColor.js';
 
 
 
@@ -94,17 +96,18 @@ function DayView(props: { todosForDay: Array<Todo>, date: Date }) {
         props.todosForDay.map(todo =>
           <TodoView
             key={id++}
-            todo={todo} />
+            todo={todo}
+            hasPassed={hasPassed} />
         )
       }
     </Card>
   )
 }
 
-function TodoView(props: { todo: Todo }) {
+function TodoView(props: { todo: Todo, hasPassed: boolean }) {
   const style = StyleSheet.create({
     left: {
-      width: 100,
+      width: 80,
     },
     container: {
       display: "flex",
@@ -113,8 +116,24 @@ function TodoView(props: { todo: Todo }) {
     location: {
       fontSize: 13,
       color: "gray"
+    },
+    description: {
+      borderTopColor: "#cfd8ff",
+      borderTopWidth: 0.5,
+      paddingTop: 5,
+      fontSize: 13,
+      color: "#524b39",
+      fontStyle: "italic"
     }
   })
+
+  let [completed, setComplete] = useState(props.todo.completed);
+  console.log(completed)
+  function saveTodo() {
+    props.todo.completed = completed;
+    TodoData.update(props.todo.id, props.todo);
+  }
+
   const navigation = useNavigation();
   function toHourMinuteString(date: Date | undefined): string {
     if (date)
@@ -123,41 +142,94 @@ function TodoView(props: { todo: Todo }) {
   }
 
   return (
-    <CardItem
-      bordered
-      button
-      onPress={() => navigation.navigate('TodoDetail', { todo: props.todo })}
-    >
-      <Body style={style.container}>
-        {!props.todo.isAllDayEvent && <View style={style.left}>
-          <Text style={{ fontSize: 14 }}>
-            {toHourMinuteString(props.todo.timeStart)}
+    <View style={{ display: 'flex', flexDirection: 'row' }}>
+      <CardItem
+        style={{ flex: 1 }}
+        bordered
+        button
+        onPress={() => navigation.navigate('TodoDetail', { todo: props.todo })}
+      >
+        <Body style={style.container}>
+          {!props.todo.isAllDayEvent && <View style={style.left}>
+            <Text style={{ fontSize: 14 }}>
+              {toHourMinuteString(props.todo.timeStart)}
+            </Text>
+            <Text style={{ fontSize: 14 }}>
+              {toHourMinuteString(props.todo.timeEnd)}
+            </Text>
+          </View>
+          }
+          {props.todo.isAllDayEvent && <View style={style.left}>
+            <Text style={{ color: 'green', fontSize: 14 }}>
+              All Day
           </Text>
-          <Text style={{ fontSize: 14 }}>
-            {toHourMinuteString(props.todo.timeEnd)}
-          </Text>
-        </View>
-        }
-        {props.todo.isAllDayEvent && <View style={style.left}>
-          <Text style={{ color: 'green', fontSize: 14 }}>
-            All Day
-          </Text>
-        </View>
-        }
+          </View>
+          }
 
-        <View>
-          <Text style={{ fontSize: 14 }}>
-            {props.todo.name}
-          </Text>
-          <Text style={style.location}>
-            {props.todo.location}
-          </Text>
-        </View>
-      </Body>
-    </CardItem>
+          <View style={{ flex: 1 }}>
+            <View style={{ display: "flex", flexDirection: "row" }} >
+              <Icon name="checkbox-blank-circle"
+                style={{
+                  color: props.hasPassed ?
+                    "gray" : ImportantLevelColor[props.todo.importantLevel],
+                  marginRight: 7
+                }} />
+              <Text style={{ fontSize: 14 }}>
+                {props.todo.name}
+              </Text>
+            </View>
+            <View style={{ marginLeft: 20 }}>
+              <Text style={style.location}>
+                {props.todo.location}
+              </Text>
+            </View>
+            {!props.todo.isAllDayEvent &&
+              <View style={{ marginLeft: 20 }}>
+                <View style={{ height: 5 }}></View>
+                <Text style={style.description} >
+                  {props.todo.description}
+                </Text>
+              </View>
+            }
+          </View>
+        </Body>
+      </CardItem>
+      <View style={{ marginTop: 13, marginRight: 2 }}>
+        <CheckCompletedButton
+          title="Done"
+          item={completed}
+          setItem={setComplete}
+          saveTodo={saveTodo} />
+      </View>
+    </View>
+
   )
 }
 
+function CheckCompletedButton(props:
+  { item: boolean, setItem: Function, saveTodo: Function, title: string }
+) {
+  let primaryColor = theme.default.brandPrimary;
+
+  return (
+    <View
+      style={{
+        padding: 10,
+        borderColor: primaryColor,
+        borderWidth: 0.5,
+        borderRadius: 3,
+      }}
+      onTouchEnd={() => {
+        console.log("props.item" + props.item)
+        props.setItem(!props.item)
+        props.saveTodo()
+      }}
+    >
+      {!props.item && <Icon name="progress-clock" />}
+      {props.item && <Icon name="check" style={{ fontWeight: 'bold', color: '#4cad36' }} />}
+    </View>
+  )
+}
 
 
 

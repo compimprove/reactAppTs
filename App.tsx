@@ -8,6 +8,7 @@ import { Header, Left, Body, Right, Button, Text, Title } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MonthCalendar from './Components/MonthCalendar';
 import ToDayCalendar from './Components/TodayCalendar';
+import Analysis from './Components/Analysis';
 import TodoDetail from './Components/TodoDetail';
 import AsyncStorage from '@react-native-community/async-storage';
 import Helper from './Helper';
@@ -78,6 +79,13 @@ export default class App
             <Stack.Screen
               name="MonthCalendar"
               component={MonthCalendar}
+              options={{
+                header: ({ navigation }) =>
+                  <AppHeader navigation={navigation} />
+              }} />
+            <Stack.Screen
+              name="Analysis"
+              component={Analysis}
               options={{
                 header: ({ navigation }) =>
                   <AppHeader navigation={navigation} />

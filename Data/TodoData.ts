@@ -73,7 +73,6 @@ export default class TodoData {
         console.log(TodoData.todos);
         todo.id = id;
         TodoData.todos.set(id, todo);
-        console.log(TodoData.todos);
         this.saveAsync();
     }
 

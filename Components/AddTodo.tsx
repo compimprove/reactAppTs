@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ImportantLevel, ImportantLevelColor } from '../Model/Enum';
 import Todo from '../Model/Todo';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import TodoData from '../Data/TodoData';
@@ -9,12 +10,13 @@ import {
   Item,
   Label,
   Input,
-  Button,
   Switch,
   View,
 } from 'native-base';
+import { Button, StyleSheet } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+
 
 function createDateTimePickerFunction(
   setShow: Function,
@@ -62,6 +64,8 @@ function saveTodo(arg: {
   timeEnd: Date,
   name: string,
   location: string,
+  description: string,
+  importantLevel: ImportantLevel,
   reminder: boolean,
   isAllDayEvent: boolean,
 }
@@ -87,6 +91,8 @@ export default function AddTodo(props: any) {
   const [timeEnd, setTimeEnd] = useState(new Date());
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
+  const [description, setDescription] = useState('');
+  const [importantLevel, setImportantLevel] = useState(ImportantLevel.medium);
 
   const [isAllDayEvent, setAllDayEvent] = useState(false);
   const toggleSwitchAllDayEvent = () => setAllDayEvent(previousState => !previousState);
@@ -103,6 +109,8 @@ export default function AddTodo(props: any) {
       timeEnd,
       name,
       location,
+      description,
+      importantLevel,
       reminder,
       isAllDayEvent
     });
@@ -114,7 +122,7 @@ export default function AddTodo(props: any) {
     <Content style={{ backgroundColor: 'white' }}>
       <Form>
         <Item>
-          <Icon name="subtitles-outline" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 10 }} />
+          <Icon name="format-text" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 4 }} />
           <Input
             style={{ fontSize: 15, height: 60 }}
             placeholder="Title"
@@ -128,6 +136,14 @@ export default function AddTodo(props: any) {
             placeholder="Location"
             onChangeText={text => setLocation(text)}
             value={location} />
+        </Item>
+        <Item>
+          <Icon name="text" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 10 }} />
+          <Input
+            style={{ fontSize: 15, height: 60 }}
+            placeholder="Description"
+            onChangeText={text => setDescription(text)}
+            value={description} />
         </Item>
         <Item style={{ height: 60 }}>
           <Icon name="clock-outline" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 5 }} />
@@ -148,6 +164,9 @@ export default function AddTodo(props: any) {
           setAllDayEvent={setAllDayEvent}
 
         />
+        <PickImportantLevel
+          importantLevel={importantLevel}
+          setImportantLevel={setImportantLevel} />
         <Item last style={{ height: 60 }}>
           <Icon name="bell-outline" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 5 }} />
           <Label style={{ paddingLeft: 5, width: 180, fontSize: 15 }}>
@@ -156,7 +175,6 @@ export default function AddTodo(props: any) {
           <Switch
             style={{ paddingLeft: 5 }}
             trackColor={{ false: "#767577", true: "#81b0ff" }}
-            ios_backgroundColor="#3e3e3e"
             onValueChange={toggleSwitchReminder}
             value={reminder}
           />
@@ -175,6 +193,62 @@ export default function AddTodo(props: any) {
 
     </Content >
   );
+}
+
+function PickImportantLevel(props: {
+  importantLevel: ImportantLevel,
+  setImportantLevel: Function
+}) {
+  let style = StyleSheet.create({
+    cell: {
+      paddingLeft: 10,
+      display: "flex",
+      flexDirection: "row",
+      flex: 1,
+      borderRightColor: "gray",
+      borderRightWidth: 0.5,
+      height: 40,
+      alignItems: "center"
+    }
+  })
+
+  return (
+    <Item style={{ height: 60 }} >
+
+      <View style={{ display: "flex", flexDirection: "row" }}>
+        <View style={style.cell} >
+          <Text style={{ fontSize: 14, color: "gray" }} >Important</Text>
+          <Switch
+            thumbColor={ImportantLevelColor[ImportantLevel.high]}
+            trackColor={{ false: "#767577", true: ImportantLevelColor[ImportantLevel.high] }}
+            onValueChange={(value) =>
+              props.setImportantLevel(ImportantLevel.high)}
+            value={props.importantLevel == ImportantLevel.high}
+          />
+        </View>
+        <View style={style.cell} >
+          <Text style={{ fontSize: 14, color: "gray" }} >Normal</Text>
+          <Switch
+            thumbColor={ImportantLevelColor[ImportantLevel.medium]}
+            trackColor={{ false: "#767577", true: ImportantLevelColor[ImportantLevel.medium] }}
+            onValueChange={(value) =>
+              props.setImportantLevel(ImportantLevel.medium)}
+            value={props.importantLevel == ImportantLevel.medium}
+          />
+        </View>
+        <View style={style.cell} >
+          <Text style={{ fontSize: 14, color: "gray" }} >Low</Text>
+          <Switch
+            thumbColor={ImportantLevelColor[ImportantLevel.low]}
+            trackColor={{ false: "#767577", true: ImportantLevelColor[ImportantLevel.low] }}
+            onValueChange={(value) =>
+              props.setImportantLevel(ImportantLevel.low)}
+            value={props.importantLevel == ImportantLevel.low}
+          />
+        </View>
+      </View>
+    </Item>
+  )
 }
 
 function PickDateTime(props: {

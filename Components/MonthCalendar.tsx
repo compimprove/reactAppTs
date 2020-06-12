@@ -15,8 +15,10 @@ import DateTodos from '../Model/DateTodo';
 import Helper from '../Helper';
 import Todo from '../Model/Todo';
 import TodoData from '../Data/TodoData';
+import { useNavigation } from '@react-navigation/native';
+import { ImportantLevelColor } from '../Model/Enum';
 
-const DateTimeFormat = new Intl.DateTimeFormat('en-US', { month: 'short' });
+const DateTimeFormat = new Intl.DateTimeFormat('en-US', { month: 'long' });
 
 class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | null }> {
   monthDays: Array<Date>
@@ -24,7 +26,7 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
 
   constructor(props: any) {
     super(props);
-    this.monthDays = this.initializeMonthDays();
+    this.monthDays = this.initializeMonthDays()
     this.state = {
       dateTodos: null,
     }
@@ -32,6 +34,14 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
   }
 
   componentDidMount() {
+    let firstMonthDay = this.monthDays[0];
+    let temp = new Array<Date>();
+    for (let i = 0; i < firstMonthDay.getDay(); i++) {
+      temp.push(new Date(firstMonthDay.valueOf()
+        - 86400 * 1000 * (firstMonthDay.getDay() - i)));
+    }
+    this.monthDays = temp.concat(this.monthDays);
+
     let daysInMonth = this.monthDays.length;
     let remainNumberOfCellRender = (7 - daysInMonth % 7);
     let lastMonthDay = this.monthDays[daysInMonth - 1];
@@ -54,9 +64,10 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
       currentDate.getMonth()
     );
     for (let i = 1; i <= daysInThisMonth; i++) {
-      let date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+      let date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i)
       monthdays.push(date);
     }
+
     return monthdays;
   }
 
@@ -65,6 +76,9 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
   }
 
   render() {
+    let weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+    let dateTodos = TodoData.getTodosByDays(this.monthDays);
+
     return (
       <>
         <Container>
@@ -76,20 +90,20 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
             flexDirection: 'row',
             justifyContent: "center"
           }}>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>S</Text>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>M</Text>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>T</Text>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>W</Text>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>T</Text>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>F</Text>
-            <Text style={{ color: "white", textAlign: "center", flex: 1 }}>S</Text>
+            {weekDays.map((value, index) =>
+              <Text
+                key={index}
+                style={{ color: "white", textAlign: "center", flex: 1 }}>
+                {value}
+              </Text>
+            )}
           </View>
-          {this.state.dateTodos &&
+          {dateTodos &&
             <SafeAreaView>
               <FlatList
                 numColumns={7}
                 horizontal={false}
-                data={this.state.dateTodos}
+                data={dateTodos}
                 keyExtractor={dateTodos => dateTodos.date.getDate().toString()}
                 renderItem={({ item }) => <DateTodosView dateTodos={item} />}
               />
@@ -103,18 +117,21 @@ class MonthCalendar extends React.Component<{}, { dateTodos: Array<DateTodos> | 
 }
 
 function DateTodosView(props: { dateTodos: DateTodos }) {
+  let isFirstMonthDay = props.dateTodos.date.getDate() == 1
+  let isToday = props.dateTodos.date.getDate() == new Date().getDate();
 
   return (
     <View
+      key={props.dateTodos.date.getDate()}
       style={{ flex: 1, height: 108, borderTopWidth: 1, borderTopColor: 'gray', overflow: "hidden" }}
     >
       <Text style={{
         alignSelf: "center",
-        color: (props.dateTodos.date.getDate() == 1) ? 'black' : 'gray',
-        fontWeight: (props.dateTodos.date.getDate() == 1) ? "bold" : undefined,
+        color: isFirstMonthDay || isToday ? 'black' : 'gray',
+        fontWeight: isFirstMonthDay || isToday ? "bold" : undefined,
         fontSize: 12,
       }}>
-        {props.dateTodos.date.getDate() == 1 ?
+        {isFirstMonthDay ?
           `1 ${DateTimeFormat.format(props.dateTodos.date)}` :
           props.dateTodos.date.getDate()
         }
@@ -125,19 +142,25 @@ function DateTodosView(props: { dateTodos: DateTodos }) {
 }
 
 function TodoView(props: { todo: Todo }) {
+  const navigation = useNavigation();
+  let touchEvent = () => {
+    navigation.navigate('TodoDetail', { todo: props.todo })
+  }
   return (
-    <View style={{
-      marginTop: 4,
-      paddingLeft: 5,
-      backgroundColor: "#daeff7",
-      borderRadius: 3,
-      height: 18,
-      overflow: "hidden",
-    }}>
+    <View
+      onTouchEnd={touchEvent}
+      style={{
+        marginTop: 4,
+        paddingLeft: 5,
+        backgroundColor: "#fffaeb",
+        borderRadius: 3,
+        height: 18,
+        overflow: "hidden",
+      }}>
       <Text style={{
         fontSize: 12,
         fontWeight: "bold",
-        color: props.todo.isAllDayEvent ? "#e6a69a" : "#3460c7"
+        color: ImportantLevelColor[props.todo.importantLevel],
       }}>
         {props.todo.name}
       </Text>

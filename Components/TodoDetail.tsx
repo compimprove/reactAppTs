@@ -15,6 +15,8 @@ import {
 } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import { StyleSheet } from 'react-native';
+import { ImportantLevel, ImportantLevelColor } from '../Model/Enum';
 
 export default function TodoDetail(props: {
     route: any,
@@ -40,6 +42,9 @@ export default function TodoDetail(props: {
     );
     const [name, setName] = useState(todo.name);
     const [location, setLocation] = useState(todo.location);
+    const [description, setDescription] = useState(todo.description);
+    const [importantLevel, setImportantLevel] = useState(todo.importantLevel);
+        
 
     const [isAllDayEvent, setAllDayEvent] = useState(todo.isAllDayEvent);
     const toggleSwitchAllDayEvent = () => setAllDayEvent(previousState => !previousState);
@@ -55,6 +60,8 @@ export default function TodoDetail(props: {
             timeEnd,
             name,
             location,
+            description,
+            importantLevel,
             reminder,
             isAllDayEvent
         });
@@ -87,6 +94,14 @@ export default function TodoDetail(props: {
                         onChangeText={text => setLocation(text)}
                         value={location} />
                 </Item>
+                <Item>
+                    <Icon name="text" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 10 }} />
+                    <Input
+                        style={{ fontSize: 15, height: 60 }}
+                        placeholder="Description"
+                        onChangeText={text => setDescription(text)}
+                        value={description} />
+                </Item>
                 <Item style={{ height: 60 }}>
                     <Icon name="clock-outline" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 5 }} />
                     <Label style={{ paddingLeft: 5, width: 180, fontSize: 15 }}>
@@ -104,8 +119,10 @@ export default function TodoDetail(props: {
                     date={{ dateStart, setDateStart, dateEnd, setDateEnd }}
                     isAllDayEvent={isAllDayEvent}
                     setAllDayEvent={setAllDayEvent}
-
                 />
+                <PickImportantLevel
+                    importantLevel={importantLevel}
+                    setImportantLevel={setImportantLevel} />
                 <Item last style={{ height: 60 }}>
                     <Icon name="bell-outline" style={{ color: 'gray', width: 60, fontSize: 20, paddingBottom: 5 }} />
                     <Label style={{ paddingLeft: 5, width: 180, fontSize: 15 }}>
@@ -124,7 +141,7 @@ export default function TodoDetail(props: {
                     <Icon.Button
                         style={{ width: 90 }} name="content-save"
                         onPress={updateTodoLocalFunc}>
-                        Save
+                        Update
                     </Icon.Button>
                     <Icon.Button
                         backgroundColor="#f7513b"
@@ -174,11 +191,12 @@ function updateTodo(id: number, arg: {
     dateEnd: Date,
     timeEnd: Date,
     name: string,
+    description: string,
+    importantLevel: ImportantLevel,
     location: string,
     reminder: boolean,
     isAllDayEvent: boolean,
-}
-) {
+}) {
     let todo = new Todo(arg);
     TodoData.update(id, todo);
 }
@@ -306,4 +324,60 @@ function getTimeDurationString(start: Date, end: Date): string {
         let durationMinutes = end.getMinutes() - start.getMinutes();
         return `${durationHours} hrs, ${durationMinutes} mins`;
     }
+}
+
+function PickImportantLevel(props: {
+    importantLevel: ImportantLevel,
+    setImportantLevel: Function
+}) {
+    let style = StyleSheet.create({
+        cell: {
+            paddingLeft: 10,
+            display: "flex",
+            flexDirection: "row",
+            flex: 1,
+            borderRightColor: "gray",
+            borderRightWidth: 0.5,
+            height: 40,
+            alignItems: "center"
+        }
+    })
+
+    return (
+        <Item style={{ height: 60 }} >
+
+            <View style={{ display: "flex", flexDirection: "row" }}>
+                <View style={style.cell} >
+                    <Text style={{ fontSize: 14, color: "gray" }} >Important</Text>
+                    <Switch
+                        thumbColor={ImportantLevelColor[ImportantLevel.high]}
+                        trackColor={{ false: "#767577", true: ImportantLevelColor[ImportantLevel.high] }}
+                        onValueChange={(value) =>
+                            props.setImportantLevel(ImportantLevel.high)}
+                        value={props.importantLevel == ImportantLevel.high}
+                    />
+                </View>
+                <View style={style.cell} >
+                    <Text style={{ fontSize: 14, color: "gray" }} >Normal</Text>
+                    <Switch
+                        thumbColor={ImportantLevelColor[ImportantLevel.medium]}
+                        trackColor={{ false: "#767577", true: ImportantLevelColor[ImportantLevel.medium] }}
+                        onValueChange={(value) =>
+                            props.setImportantLevel(ImportantLevel.medium)}
+                        value={props.importantLevel == ImportantLevel.medium}
+                    />
+                </View>
+                <View style={style.cell} >
+                    <Text style={{ fontSize: 14, color: "gray" }} >Low</Text>
+                    <Switch
+                        thumbColor={ImportantLevelColor[ImportantLevel.low]}
+                        trackColor={{ false: "#767577", true: ImportantLevelColor[ImportantLevel.low] }}
+                        onValueChange={(value) =>
+                            props.setImportantLevel(ImportantLevel.low)}
+                        value={props.importantLevel == ImportantLevel.low}
+                    />
+                </View>
+            </View>
+        </Item>
+    )
 }

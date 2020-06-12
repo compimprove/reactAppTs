@@ -17,6 +17,7 @@ import DateTodos from '../Model/DateTodo';
 import Todo from '../Model/Todo';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import TodoData from '../Data/TodoData';
+import { ImportantLevelColor } from '../Model/Enum';
 
 
 class ToDayCalendar extends React.Component<{}, { weekTodos: Array<DateTodos> | null }>{
@@ -282,16 +283,19 @@ function HourView(props: { hour: number, todo: Todo | undefined }) {
 function TodoName(props: { todo: Todo }) {
   return (
     <>
-      <Text
-        style={{
-          paddingTop: 4,
-          paddingLeft: 6,
-          fontSize: 13,
-          color: '#3a4c5c'
-        }}
-      >
-        {props.todo.name}
-      </Text>
+      <View style={{ display: "flex", flexDirection: "row", paddingTop: 4, }} >
+        <Icon name="checkbox-blank-circle"
+          style={{
+            color: ImportantLevelColor[props.todo.importantLevel],
+            marginLeft: 7,
+            marginRight: 3,
+            marginTop: 2,
+            fontSize: 10,
+          }} />
+        <Text style={{ fontSize: 13, color: '#3a4c5c' }}>
+          {props.todo.name}
+        </Text>
+      </View>
       <View style={{ display: 'flex', flexDirection: 'row', paddingTop: 2, paddingLeft: 6, }}>
         <Icon
           name="map-marker"
